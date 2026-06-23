@@ -1,0 +1,642 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg0:var(--color-background-primary);
+  --bg1:var(--color-background-secondary);
+  --bg2:var(--color-background-tertiary);
+  --t1:var(--color-text-primary);
+  --t2:var(--color-text-secondary);
+  --t3:var(--color-text-tertiary);
+  --bdr:var(--color-border-tertiary);
+  --bdr2:var(--color-border-secondary);
+  --r:var(--border-radius-lg);
+  --rm:var(--border-radius-md);
+  --accent:#7F77DD;
+  --accent-bg:#EEEDFE;
+  --accent-t:#3C3489;
+}
+body{font-family:var(--font-sans);background:transparent;color:var(--t1)}
+.app{max-width:680px;margin:0 auto;padding:1rem 0 2rem}
+.screen{display:none}
+.screen.active{display:block}
+
+/* NAV */
+.nav{display:flex;align-items:center;justify-content:space-between;padding:.75rem 0 1.25rem;border-bottom:.5px solid var(--bdr);margin-bottom:1.5rem}
+.nav-logo{font-size:18px;font-weight:500;color:var(--t1)}
+.nav-logo span{color:var(--accent)}
+.nav-right{display:flex;gap:8px;align-items:center}
+.chip{background:var(--bg1);border:.5px solid var(--bdr);border-radius:99px;padding:4px 12px;font-size:13px;color:var(--t2);display:flex;align-items:center;gap:6px}
+.chip .val{font-weight:500;color:var(--t1)}
+
+/* HERO */
+.hero{text-align:center;padding:1.5rem 0 2rem}
+.hero h1{font-size:28px;font-weight:500;margin-bottom:.5rem}
+.hero p{color:var(--t2);font-size:15px;margin-bottom:1.5rem}
+.mode-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1.5rem}
+.mode-card{background:var(--bg0);border:.5px solid var(--bdr);border-radius:var(--r);padding:1.25rem 1rem;cursor:pointer;transition:border-color .15s,background .15s;text-align:center}
+.mode-card:hover{border-color:var(--accent);background:var(--accent-bg)}
+.mode-card.selected{border:2px solid var(--accent);background:var(--accent-bg)}
+.mode-icon{font-size:24px;margin-bottom:.5rem;color:var(--accent)}
+.mode-name{font-size:14px;font-weight:500;margin-bottom:3px}
+.mode-desc{font-size:12px;color:var(--t2)}
+.quick-row{display:flex;gap:10px}
+.btn{border:.5px solid var(--bdr2);background:var(--bg0);border-radius:var(--rm);padding:8px 18px;font-size:14px;cursor:pointer;color:var(--t1);display:inline-flex;align-items:center;gap:6px;transition:background .12s,transform .1s}
+.btn:hover{background:var(--bg1)}
+.btn:active{transform:scale(.98)}
+.btn.primary{background:var(--accent);color:#fff;border-color:transparent}
+.btn.primary:hover{opacity:.9}
+.btn.danger{color:var(--color-text-danger);border-color:var(--color-border-danger)}
+.btn.full{width:100%;justify-content:center;padding:10px}
+
+/* GAME SCREEN */
+.game-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem}
+.game-meta{font-size:13px;color:var(--t2);display:flex;gap:12px}
+.game-meta span{display:flex;align-items:center;gap:4px}
+.score-flash{font-size:13px;font-weight:500;color:var(--accent)}
+
+.hint-area{background:var(--bg0);border:.5px solid var(--bdr);border-radius:var(--r);overflow:hidden;margin-bottom:1rem}
+.hint-tab-row{display:flex;border-bottom:.5px solid var(--bdr)}
+.hint-tab{flex:1;padding:.6rem;font-size:12px;text-align:center;cursor:pointer;color:var(--t2);border-bottom:2px solid transparent;transition:all .15s}
+.hint-tab.active{color:var(--accent);border-bottom:2px solid var(--accent)}
+.hint-tab.locked{opacity:.4;cursor:default}
+.hint-panel{padding:1.25rem;min-height:180px;display:flex;align-items:center;justify-content:center}
+
+/* album art progressive reveal */
+.art-wrap{position:relative;width:160px;height:160px;border-radius:8px;overflow:hidden}
+.art-canvas{position:absolute;inset:0;width:100%;height:100%}
+.art-label{font-size:12px;color:var(--t2);text-align:center;margin-top:.5rem}
+
+/* lyric hint */
+.lyric-hint{width:100%;text-align:center}
+.lyric-line{font-size:17px;font-weight:500;letter-spacing:.5px;margin-bottom:.25rem;line-height:1.5}
+.lyric-line .blank{display:inline-block;border-bottom:2px solid var(--accent);min-width:40px;margin:0 4px;color:transparent}
+.lyric-context{font-size:12px;color:var(--t3);margin-top:.5rem}
+
+/* waveform hint */
+.wave-area{display:flex;align-items:center;gap:8px;width:100%}
+.wave-bars{display:flex;align-items:flex-end;gap:3px;height:60px;flex:1}
+.wave-bar{flex:1;border-radius:3px 3px 0 0;transition:background .3s}
+.wave-play{width:40px;height:40px;border-radius:50%;border:.5px solid var(--bdr2);background:var(--bg1);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0}
+.wave-play:hover{background:var(--accent-bg)}
+
+/* hints left */
+.hints-row{display:flex;gap:8px;margin-bottom:1rem;align-items:center}
+.hint-dot{width:10px;height:10px;border-radius:50%;background:var(--bdr2)}
+.hint-dot.used{background:var(--accent)}
+.hint-dot.available{background:var(--accent);opacity:.3}
+.hints-label{font-size:12px;color:var(--t2);margin-left:4px}
+
+/* answer input */
+.answer-section{margin-bottom:1rem}
+.answer-input-wrap{display:flex;gap:8px;margin-bottom:.75rem}
+.answer-input-wrap input{flex:1;font-size:15px;padding:10px 14px;border:.5px solid var(--bdr2);border-radius:var(--rm);background:var(--bg0);color:var(--t1)}
+.answer-input-wrap input:focus{outline:none;border-color:var(--accent)}
+.suggestions{display:flex;flex-wrap:wrap;gap:6px}
+.suggestion-chip{background:var(--bg1);border:.5px solid var(--bdr);border-radius:99px;padding:5px 13px;font-size:12px;cursor:pointer;color:var(--t2);transition:all .15s}
+.suggestion-chip:hover{background:var(--accent-bg);color:var(--accent-t);border-color:var(--accent)}
+
+/* feedback overlay */
+.feedback-banner{border-radius:var(--rm);padding:.75rem 1rem;font-size:14px;font-weight:500;margin-bottom:1rem;display:flex;align-items:center;gap:8px}
+.feedback-banner.correct{background:var(--color-background-success);color:var(--color-text-success)}
+.feedback-banner.wrong{background:var(--color-background-danger);color:var(--color-text-danger)}
+.feedback-banner.skip{background:var(--color-background-warning);color:var(--color-text-warning)}
+
+/* result card */
+.result-reveal{background:var(--bg0);border:.5px solid var(--bdr);border-radius:var(--r);padding:1.5rem;margin-bottom:1rem}
+.result-song{display:flex;gap:1rem;align-items:center;margin-bottom:1rem}
+.result-art{width:64px;height:64px;border-radius:8px}
+.result-info h3{font-size:18px;font-weight:500;margin-bottom:3px}
+.result-info p{font-size:13px;color:var(--t2)}
+.result-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.stat-card{background:var(--bg1);border-radius:var(--rm);padding:.75rem;text-align:center}
+.stat-card .sv{font-size:22px;font-weight:500;margin-bottom:2px}
+.stat-card .sl{font-size:11px;color:var(--t2)}
+
+/* leaderboard */
+.lb-list{border:.5px solid var(--bdr);border-radius:var(--r);overflow:hidden;margin-bottom:1rem}
+.lb-row{display:flex;align-items:center;gap:12px;padding:.75rem 1rem;border-bottom:.5px solid var(--bdr)}
+.lb-row:last-child{border-bottom:none}
+.lb-row.me{background:var(--accent-bg)}
+.lb-rank{font-size:14px;font-weight:500;width:20px;color:var(--t2)}
+.lb-rank.top{color:var(--accent)}
+.lb-avatar{width:32px;height:32px;border-radius:50%;background:var(--bg1);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;color:var(--accent);flex-shrink:0}
+.lb-name{flex:1;font-size:14px}
+.lb-badge{font-size:11px;color:var(--t2);margin-left:4px}
+.lb-score{font-size:14px;font-weight:500}
+.lb-streak{font-size:11px;color:var(--accent);margin-left:4px}
+
+/* daily challenge */
+.daily-card{background:var(--bg0);border:2px solid var(--accent);border-radius:var(--r);padding:1.25rem;margin-bottom:1rem;position:relative;overflow:hidden}
+.daily-badge{position:absolute;top:12px;right:12px;background:var(--accent);color:#fff;font-size:11px;padding:3px 10px;border-radius:99px}
+.daily-card h3{font-size:16px;font-weight:500;margin-bottom:.25rem}
+.daily-card p{font-size:13px;color:var(--t2);margin-bottom:.75rem}
+.daily-progress{height:4px;background:var(--bdr2);border-radius:2px;margin-bottom:.5rem}
+.daily-progress-fill{height:4px;background:var(--accent);border-radius:2px;transition:width .5s}
+.daily-meta{font-size:11px;color:var(--t3);display:flex;justify-content:space-between}
+
+/* section header */
+.section-h{display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem}
+.section-h h2{font-size:16px;font-weight:500}
+.section-h a{font-size:13px;color:var(--accent);cursor:pointer;text-decoration:none}
+
+/* tabs */
+.tabs{display:flex;gap:4px;background:var(--bg1);border-radius:var(--rm);padding:3px;margin-bottom:1.25rem}
+.tab-btn{flex:1;padding:6px;font-size:13px;border-radius:6px;border:none;background:transparent;cursor:pointer;color:var(--t2);transition:all .15s}
+.tab-btn.active{background:var(--bg0);color:var(--t1);border:.5px solid var(--bdr)}
+
+.hidden{display:none!important}
+.mt1{margin-top:1rem}
+.mb1{margin-bottom:1rem}
+</style>
+
+<h2 class="sr-only">Song Guess Challenge — a music trivia game where you guess songs from progressive hints</h2>
+
+<div class="app">
+  <nav class="nav">
+    <div class="nav-logo"><i class="ti ti-vinyl" aria-hidden="true"></i> Song<span>Guess</span></div>
+    <div class="nav-right">
+      <div class="chip"><i class="ti ti-flame" aria-hidden="true" style="color:#E24B4A"></i> Streak <span class="val" id="nav-streak">0</span></div>
+      <div class="chip"><i class="ti ti-trophy" aria-hidden="true" style="color:var(--accent)"></i> <span class="val" id="nav-score">0</span></div>
+    </div>
+  </nav>
+
+  <!-- HOME -->
+  <div id="screen-home" class="screen active">
+    <div class="hero">
+      <h1>Guess the song</h1>
+      <p>Reveal hints one at a time — fewer hints, more points</p>
+    </div>
+
+    <div class="daily-card mb1">
+      <div class="daily-badge">Daily</div>
+      <h3>Today's challenge</h3>
+      <p>5 songs · Limited hints · Bonus XP</p>
+      <div class="daily-progress"><div class="daily-progress-fill" id="daily-prog" style="width:40%"></div></div>
+      <div class="daily-meta"><span>2 of 5 complete</span><span>Resets in 8h 14m</span></div>
+      <button class="btn primary mt1" onclick="startGame('daily')"><i class="ti ti-calendar-event" aria-hidden="true"></i> Play daily</button>
+    </div>
+
+    <div class="section-h"><h2>Game mode</h2></div>
+    <div class="mode-grid">
+      <div class="mode-card selected" onclick="selectMode(this,'mixed')" data-mode="mixed">
+        <div class="mode-icon"><i class="ti ti-music" aria-hidden="true"></i></div>
+        <div class="mode-name">Mixed</div>
+        <div class="mode-desc">All genres & eras</div>
+      </div>
+      <div class="mode-card" onclick="selectMode(this,'artist')" data-mode="artist">
+        <div class="mode-icon"><i class="ti ti-microphone-2" aria-hidden="true"></i></div>
+        <div class="mode-name">By artist</div>
+        <div class="mode-desc">Focus on one act</div>
+      </div>
+      <div class="mode-card" onclick="selectMode(this,'decade')" data-mode="decade">
+        <div class="mode-icon"><i class="ti ti-calendar" aria-hidden="true"></i></div>
+        <div class="mode-name">By decade</div>
+        <div class="mode-desc">Pick an era</div>
+      </div>
+      <div class="mode-card" onclick="selectMode(this,'genre')" data-mode="genre">
+        <div class="mode-icon"><i class="ti ti-guitar-pick" aria-hidden="true"></i></div>
+        <div class="mode-name">By genre</div>
+        <div class="mode-desc">Rock, pop, hip-hop...</div>
+      </div>
+      <div class="mode-card" onclick="selectMode(this,'hard')" data-mode="hard">
+        <div class="mode-icon"><i class="ti ti-flame" aria-hidden="true"></i></div>
+        <div class="mode-name">Hard mode</div>
+        <div class="mode-desc">Fewer hints, more XP</div>
+      </div>
+      <div class="mode-card" onclick="selectMode(this,'speedrun')" data-mode="speedrun">
+        <div class="mode-icon"><i class="ti ti-stopwatch" aria-hidden="true"></i></div>
+        <div class="mode-name">Speed round</div>
+        <div class="mode-desc">30 seconds per song</div>
+      </div>
+    </div>
+
+    <div class="quick-row">
+      <button class="btn primary full" onclick="startGame('normal')"><i class="ti ti-player-play" aria-hidden="true"></i> Start game</button>
+      <button class="btn full" onclick="showScreen('leaderboard')"><i class="ti ti-chart-bar" aria-hidden="true"></i> Board</button>
+    </div>
+  </div>
+
+  <!-- GAME -->
+  <div id="screen-game" class="screen">
+    <div class="game-header">
+      <div class="game-meta">
+        <span><i class="ti ti-music" aria-hidden="true"></i> <span id="g-mode">Mixed</span></span>
+        <span><i class="ti ti-hash" aria-hidden="true"></i> Song <span id="g-num">1</span>/5</span>
+        <span id="timer-wrap" class="hidden"><i class="ti ti-clock" aria-hidden="true"></i> <span id="g-timer">30</span>s</span>
+      </div>
+      <div class="score-flash" id="score-flash"></div>
+    </div>
+
+    <div id="feedback-area"></div>
+
+    <div class="hint-area">
+      <div class="hint-tab-row">
+        <div class="hint-tab active" id="tab-art" onclick="switchHintTab('art')"><i class="ti ti-photo" aria-hidden="true"></i> Art</div>
+        <div class="hint-tab locked" id="tab-lyric" onclick="unlockTab('lyric')"><i class="ti ti-quote" aria-hidden="true"></i> Lyric</div>
+        <div class="hint-tab locked" id="tab-wave" onclick="unlockTab('wave')"><i class="ti ti-wave-sine" aria-hidden="true"></i> Audio</div>
+        <div class="hint-tab locked" id="tab-meta" onclick="unlockTab('meta')"><i class="ti ti-info-circle" aria-hidden="true"></i> Info</div>
+      </div>
+      <div class="hint-panel" id="hint-panel">
+        <div style="text-align:center">
+          <div class="art-wrap" id="art-wrap"><canvas class="art-canvas" id="art-canvas" width="160" height="160"></canvas></div>
+          <div class="art-label" id="art-label">Reveal more to see the art</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="hints-row">
+      <span class="hints-label" style="margin-left:0;margin-right:4px;font-size:12px;color:var(--t2)">Hints used:</span>
+      <div class="hint-dot used" id="hdot-0"></div>
+      <div class="hint-dot" id="hdot-1"></div>
+      <div class="hint-dot" id="hdot-2"></div>
+      <div class="hint-dot" id="hdot-3"></div>
+      <span class="hints-label" id="pts-preview">+500 pts if correct now</span>
+    </div>
+
+    <div class="answer-section">
+      <div class="answer-input-wrap">
+        <input type="text" id="answer-input" placeholder="Song title..." onkeydown="if(event.key==='Enter')submitAnswer()" aria-label="Enter your guess"/>
+        <button class="btn primary" onclick="submitAnswer()">Guess</button>
+        <button class="btn" onclick="skipSong()" title="Skip this song">Skip</button>
+      </div>
+      <div class="suggestions" id="suggestions"></div>
+    </div>
+
+    <button class="btn danger" onclick="showScreen('home')" style="font-size:12px;padding:5px 12px"><i class="ti ti-x" aria-hidden="true"></i> Quit</button>
+  </div>
+
+  <!-- RESULT -->
+  <div id="screen-result" class="screen">
+    <div class="result-reveal">
+      <div class="result-song">
+        <canvas id="result-art" width="64" height="64" class="result-art"></canvas>
+        <div class="result-info">
+          <h3 id="r-title">Song Title</h3>
+          <p id="r-artist">Artist · Year</p>
+        </div>
+      </div>
+      <div class="result-stats">
+        <div class="stat-card"><div class="sv" id="r-pts" style="color:var(--accent)">+0</div><div class="sl">points</div></div>
+        <div class="stat-card"><div class="sv" id="r-hints">1</div><div class="sl">hints used</div></div>
+        <div class="stat-card"><div class="sv" id="r-streak" style="color:#E24B4A">0🔥</div><div class="sl">streak</div></div>
+      </div>
+    </div>
+    <div id="result-msg" class="feedback-banner correct" style="margin-bottom:1rem"></div>
+    <div style="display:flex;gap:8px">
+      <button class="btn primary full" onclick="nextSong()"><i class="ti ti-player-skip-forward" aria-hidden="true"></i> Next song</button>
+      <button class="btn full" onclick="showScreen('home')">Menu</button>
+    </div>
+  </div>
+
+  <!-- GAME OVER -->
+  <div id="screen-gameover" class="screen">
+    <div style="text-align:center;padding:1.5rem 0 1rem">
+      <i class="ti ti-trophy" aria-hidden="true" style="font-size:48px;color:var(--accent)"></i>
+      <h1 style="margin-top:.5rem">Game over</h1>
+      <p style="color:var(--t2);margin-top:.25rem" id="go-summary">You scored 0 points</p>
+    </div>
+    <div class="result-stats mb1">
+      <div class="stat-card"><div class="sv" id="go-score" style="color:var(--accent)">0</div><div class="sl">total points</div></div>
+      <div class="stat-card"><div class="sv" id="go-correct">0/5</div><div class="sl">correct</div></div>
+      <div class="stat-card"><div class="sv" id="go-best" style="color:#E24B4A">0🔥</div><div class="sl">best streak</div></div>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="btn primary full" onclick="startGame('normal')"><i class="ti ti-refresh" aria-hidden="true"></i> Play again</button>
+      <button class="btn full" onclick="showScreen('leaderboard')"><i class="ti ti-chart-bar" aria-hidden="true"></i> Leaderboard</button>
+    </div>
+  </div>
+
+  <!-- LEADERBOARD -->
+  <div id="screen-leaderboard" class="screen">
+    <div class="section-h mb1">
+      <h2><i class="ti ti-chart-bar" aria-hidden="true"></i> Leaderboard</h2>
+      <button class="btn" onclick="showScreen('home')" style="font-size:12px;padding:5px 12px">Back</button>
+    </div>
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchLbTab(this,'global')">Global</button>
+      <button class="tab-btn" onclick="switchLbTab(this,'daily')">Daily</button>
+      <button class="tab-btn" onclick="switchLbTab(this,'weekly')">This week</button>
+    </div>
+    <div class="lb-list" id="lb-list"></div>
+  </div>
+</div>
+
+<script>
+const SONGS=[
+  {title:"Bohemian Rhapsody",artist:"Queen",year:1975,genre:"Rock",decade:"70s",color:"#7F77DD",lyric:"Is this the real life? Is this just _____?",lyricHint:"___ this the real life? Is ___ just fantasy?",meta:"6-minute rock opera with four distinct sections",suggestions:["Bohemian Rhapsody","Stairway to Heaven","Hotel California","November Rain"]},
+  {title:"Blinding Lights",artist:"The Weeknd",year:2019,genre:"Pop",decade:"20s",color:"#D85A30",lyric:"I've been tryin' to call, I've been on my own for long enough",lyricHint:"I've been tryin' to _____, I've been on my ___ for long enough",meta:"Synth-pop hit that topped charts globally in 2020",suggestions:["Blinding Lights","Save Your Tears","Starboy","Earned It"]},
+  {title:"Rolling in the Deep",artist:"Adele",year:2010,genre:"Soul",decade:"10s",color:"#1D9E75",lyric:"We could have had it all, rolling in the deep",lyricHint:"We could have had it ___, rolling in the ____",meta:"Lead single from Adele's second studio album '21'",suggestions:["Rolling in the Deep","Someone Like You","Hello","Skyfall"]},
+  {title:"Lose Yourself",artist:"Eminem",year:2002,genre:"Hip-Hop",decade:"00s",color:"#BA7517",lyric:"You only get one shot, do not miss your chance to blow",lyricHint:"You only get ___ shot, do not miss your chance to ___",meta:"Won the Oscar for Best Original Song in 2003",suggestions:["Lose Yourself","Slim Shady","Without Me","Stan"]},
+  {title:"Shape of You",artist:"Ed Sheeran",year:2017,genre:"Pop",decade:"10s",color:"#D4537E",lyric:"I'm in love with your body",lyricHint:"I'm in love with your ____",meta:"Most-streamed song on Spotify for several years",suggestions:["Shape of You","Perfect","Thinking Out Loud","Bad Habits"]},
+];
+
+let state={score:0,streak:0,bestStreak:0,songIndex:0,hintsUsed:0,currentSong:null,mode:'mixed',gameCorrect:0,gameTotal:0,activeTab:'art',timerInterval:null,timerVal:30,isSpeedrun:false,tabsUnlocked:{art:true,lyric:false,wave:false,meta:false}};
+
+function $(id){return document.getElementById(id)}
+
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  $('screen-'+id).classList.add('active');
+}
+
+function selectMode(el,mode){
+  document.querySelectorAll('.mode-card').forEach(c=>c.classList.remove('selected'));
+  el.classList.add('selected');
+  state.mode=mode;
+}
+
+function startGame(type){
+  state.gameCorrect=0;state.gameTotal=0;state.songIndex=0;state.streak=0;
+  state.isSpeedrun=(state.mode==='speedrun'||type==='speedrun');
+  shuffleSongs();
+  loadSong();
+  showScreen('game');
+  $('g-mode').textContent=type==='daily'?'Daily':state.mode.charAt(0).toUpperCase()+state.mode.slice(1);
+}
+
+let songQueue=[];
+function shuffleSongs(){songQueue=[...SONGS].sort(()=>Math.random()-.5);}
+
+function loadSong(){
+  if(state.songIndex>=5){endGame();return;}
+  const s=songQueue[state.songIndex%songQueue.length];
+  state.currentSong=s;
+  state.hintsUsed=1;
+  state.activeTab='art';
+  state.tabsUnlocked={art:true,lyric:false,wave:false,meta:false};
+  $('g-num').textContent=state.songIndex+1;
+  $('feedback-area').innerHTML='';
+  $('answer-input').value='';
+  updateHintDots();
+  renderSuggestions(s.suggestions);
+  resetTabs();
+  drawArt(s,state.hintsUsed);
+  if(state.isSpeedrun) startTimer(); else $('timer-wrap').classList.add('hidden');
+}
+
+function resetTabs(){
+  ['art','lyric','wave','meta'].forEach(t=>{
+    const el=$('tab-'+t);
+    el.classList.remove('active','locked');
+    if(t==='art'){el.classList.add('active');}
+    else if(!state.tabsUnlocked[t]){el.classList.add('locked');}
+  });
+  showHintPanel('art');
+}
+
+function switchHintTab(tab){
+  if(!state.tabsUnlocked[tab])return;
+  state.activeTab=tab;
+  document.querySelectorAll('.hint-tab').forEach(t=>t.classList.remove('active'));
+  $('tab-'+tab).classList.add('active');
+  showHintPanel(tab);
+}
+
+function unlockTab(tab){
+  if(state.tabsUnlocked[tab]){switchHintTab(tab);return;}
+  state.hintsUsed=Math.min(state.hintsUsed+1,4);
+  state.tabsUnlocked[tab]=true;
+  $('tab-'+tab).classList.remove('locked');
+  updateHintDots();
+  switchHintTab(tab);
+}
+
+function showHintPanel(tab){
+  const s=state.currentSong;
+  const p=$('hint-panel');
+  if(tab==='art'){
+    p.innerHTML=`<div style="text-align:center"><div class="art-wrap" id="art-wrap"><canvas class="art-canvas" id="art-canvas" width="160" height="160"></canvas></div><div class="art-label" id="art-label">Click "lyric" for another hint (-100pts)</div></div>`;
+    drawArt(s,state.hintsUsed);
+  } else if(tab==='lyric'){
+    p.innerHTML=`<div class="lyric-hint"><div class="lyric-line" style="font-size:15px;line-height:1.8">${s.lyricHint.replace(/___+/g,'<span class="blank">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>')}</div><div class="lyric-context">Fill in the blanks — what song is this?</div></div>`;
+  } else if(tab==='wave'){
+    p.innerHTML=`<div class="wave-area"><div class="wave-play" onclick="animateWave()" aria-label="Play audio hint"><i class="ti ti-player-play" style="font-size:18px;color:var(--accent)"></i></div><div class="wave-bars" id="wave-bars">${Array.from({length:32},(_,i)=>`<div class="wave-bar" id="wb${i}" style="height:${10+Math.abs(Math.sin(i*.5+1))*50}px;background:var(--color-border-secondary);border-radius:3px 3px 0 0"></div>`).join('')}</div></div><div style="font-size:12px;color:var(--color-text-tertiary);margin-top:.5rem;text-align:center">Waveform preview — imagine the beat</div>`;
+  } else if(tab==='meta'){
+    p.innerHTML=`<div style="text-align:center;padding:.5rem"><i class="ti ti-info-circle" aria-hidden="true" style="font-size:32px;color:var(--accent);margin-bottom:.75rem"></i><p style="font-size:15px;line-height:1.6">${s.meta}</p><p style="font-size:12px;color:var(--t2);margin-top:.5rem">Genre: ${s.genre} · Decade: ${s.decade}</p></div>`;
+  }
+}
+
+function animateWave(){
+  const bars=document.querySelectorAll('.wave-bar');
+  if(!bars.length)return;
+  let t=0;
+  const iv=setInterval(()=>{
+    bars.forEach((b,i)=>{
+      const h=10+Math.abs(Math.sin(i*.4+t))*50;
+      b.style.height=h+'px';
+      b.style.background=`var(--accent)`;
+      b.style.opacity=.3+Math.abs(Math.sin(i*.3+t))*.7;
+    });
+    t+=.25;
+    if(t>Math.PI*4)clearInterval(iv);
+  },60);
+}
+
+function drawArt(song,hints){
+  const canvas=$('art-canvas');
+  if(!canvas)return;
+  const ctx=canvas.getContext('2d');
+  const W=160,H=160;
+  ctx.clearRect(0,0,W,H);
+  // draw full art
+  const grad=ctx.createLinearGradient(0,0,W,H);
+  grad.addColorStop(0,song.color);
+  grad.addColorStop(1,adjustHex(song.color,-60));
+  ctx.fillStyle=grad;
+  ctx.fillRect(0,0,W,H);
+  // simple geometric art
+  ctx.fillStyle='rgba(255,255,255,0.12)';
+  ctx.beginPath();ctx.arc(W*.6,H*.4,60,0,Math.PI*2);ctx.fill();
+  ctx.beginPath();ctx.arc(W*.3,H*.7,40,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='rgba(0,0,0,0.15)';
+  ctx.fillRect(20,20,60,60);
+  // reveal logic: pixelate based on hints
+  const revealFrac=hints/4;
+  const revealW=Math.floor(W*revealFrac);
+  if(revealW<W){
+    // cover unrevealed part
+    const imgData=ctx.getImageData(0,0,W,H);
+    const blockSize=Math.max(2,Math.floor(24*(1-revealFrac)));
+    for(let x=revealW;x<W;x+=blockSize){
+      for(let y=0;y<H;y+=blockSize){
+        const i=(y*W+x)*4;
+        const r=imgData.data[i],g=imgData.data[i+1],b=imgData.data[i+2];
+        ctx.fillStyle=`rgb(${r},${g},${b})`;
+        ctx.fillRect(x,y,blockSize,blockSize);
+      }
+    }
+    // hard cover on right
+    ctx.fillStyle='rgba(30,30,40,0.85)';
+    ctx.fillRect(revealW,0,W-revealW,H);
+    // blur divider
+    ctx.fillStyle='rgba(127,119,221,0.5)';
+    ctx.fillRect(revealW-2,0,3,H);
+  }
+  if($('art-label')){
+    const pct=Math.round(revealFrac*100);
+    $('art-label').textContent=pct>=100?'Full art revealed':`${pct}% revealed`;
+  }
+}
+
+function adjustHex(hex,amt){
+  const n=parseInt(hex.replace('#',''),16);
+  const r=Math.max(0,Math.min(255,((n>>16)&255)+amt));
+  const g=Math.max(0,Math.min(255,((n>>8)&255)+amt));
+  const b=Math.max(0,Math.min(255,(n&255)+amt));
+  return `#${((1<<24)+(r<<16)+(g<<8)+b).toString(16).slice(1)}`;
+}
+
+function updateHintDots(){
+  for(let i=0;i<4;i++){
+    const d=$('hdot-'+i);
+    if(d){
+      d.className='hint-dot';
+      if(i<state.hintsUsed) d.classList.add('used');
+    }
+  }
+  const pts=pointsForHints(state.hintsUsed);
+  if($('pts-preview')) $('pts-preview').textContent=`+${pts} pts if correct now`;
+}
+
+function pointsForHints(h){return[500,350,200,100][h-1]||100;}
+
+function renderSuggestions(list){
+  const c=$('suggestions');
+  c.innerHTML=list.map(s=>`<div class="suggestion-chip" onclick="fillGuess('${s}')">${s}</div>`).join('');
+}
+
+function fillGuess(t){$('answer-input').value=t;$('answer-input').focus();}
+
+function submitAnswer(){
+  const val=$('answer-input').value.trim().toLowerCase();
+  const correct=state.currentSong.title.toLowerCase();
+  if(!val)return;
+  if(val===correct||correct.includes(val)||val.includes(correct.split(' ')[0].toLowerCase())){
+    handleCorrect();
+  } else {
+    showFeedback('wrong',`Not quite — try another hint or guess again`);
+    $('answer-input').value='';
+    $('answer-input').focus();
+  }
+}
+
+function handleCorrect(){
+  const pts=pointsForHints(state.hintsUsed);
+  state.score+=pts;state.streak++;
+  if(state.streak>state.bestStreak) state.bestStreak=state.streak;
+  state.gameCorrect++;
+  $('nav-score').textContent=state.score;
+  $('nav-streak').textContent=state.streak;
+  showResult(true,pts);
+}
+
+function skipSong(){
+  state.streak=0;$('nav-streak').textContent=0;
+  showResult(false,0);
+}
+
+function showResult(correct,pts){
+  if(state.timerInterval){clearInterval(state.timerInterval);state.timerInterval=null;}
+  const s=state.currentSong;
+  showScreen('result');
+  $('r-title').textContent=s.title;
+  $('r-artist').textContent=`${s.artist} · ${s.year}`;
+  $('r-pts').textContent=correct?`+${pts}`:'+0';
+  $('r-hints').textContent=state.hintsUsed;
+  $('r-streak').textContent=state.streak+'🔥';
+  const msg=$('result-msg');
+  if(correct){
+    msg.className='feedback-banner correct';
+    msg.innerHTML=`<i class="ti ti-circle-check" aria-hidden="true"></i> ${pts===500?'Perfect guess — no hints needed!':pts>=350?'Great job!':'Nicely done!'}`;
+  } else {
+    msg.className='feedback-banner skip';
+    msg.innerHTML=`<i class="ti ti-alert-triangle" aria-hidden="true"></i> Skipped — the answer was <strong>${s.title}</strong>`;
+  }
+  // draw result art
+  const rc=$('result-art');
+  if(rc){
+    const ctx=rc.getContext('2d');
+    const grad=ctx.createLinearGradient(0,0,64,64);
+    grad.addColorStop(0,s.color);grad.addColorStop(1,adjustHex(s.color,-60));
+    ctx.fillStyle=grad;ctx.fillRect(0,0,64,64);
+    ctx.fillStyle='rgba(255,255,255,0.15)';
+    ctx.beginPath();ctx.arc(40,25,25,0,Math.PI*2);ctx.fill();
+  }
+  state.songIndex++;
+  state.gameTotal++;
+}
+
+function nextSong(){
+  if(state.songIndex>=5){endGame();return;}
+  loadSong();showScreen('game');
+}
+
+function endGame(){
+  showScreen('gameover');
+  $('go-score').textContent=state.score;
+  $('go-correct').textContent=`${state.gameCorrect}/5`;
+  $('go-best').textContent=state.bestStreak+'🔥';
+  $('go-summary').textContent=`You scored ${state.score} points with ${state.gameCorrect} correct answers`;
+  updateLeaderboard();
+}
+
+function showFeedback(type,msg){
+  $('feedback-area').innerHTML=`<div class="feedback-banner ${type}"><i class="ti ti-${type==='correct'?'circle-check':'alert-circle'}" aria-hidden="true"></i> ${msg}</div>`;
+  setTimeout(()=>{if($('feedback-area')) $('feedback-area').innerHTML='';},2000);
+}
+
+function startTimer(){
+  $('timer-wrap').classList.remove('hidden');
+  state.timerVal=30;$('g-timer').textContent=30;
+  if(state.timerInterval)clearInterval(state.timerInterval);
+  state.timerInterval=setInterval(()=>{
+    state.timerVal--;
+    $('g-timer').textContent=state.timerVal;
+    if(state.timerVal<=0){clearInterval(state.timerInterval);state.timerInterval=null;skipSong();}
+  },1000);
+}
+
+const LEADERBOARD_DATA=[
+  {name:'MusicMaestro',score:4250,streak:8,me:false},
+  {name:'BeatDetective',score:3800,streak:6,me:false},
+  {name:'You',score:0,streak:0,me:true},
+  {name:'RhythmRider',score:3100,streak:5,me:false},
+  {name:'LyricLord',score:2950,streak:4,me:false},
+  {name:'ChordChaser',score:2700,streak:3,me:false},
+  {name:'NoteNinja',score:2400,streak:7,me:false},
+];
+
+function updateLeaderboard(){
+  const me=LEADERBOARD_DATA.find(r=>r.me);
+  if(me){me.score=state.score;me.streak=state.bestStreak;}
+  LEADERBOARD_DATA.sort((a,b)=>b.score-a.score);
+}
+
+function renderLeaderboard(){
+  const list=$('lb-list');
+  if(!list)return;
+  updateLeaderboard();
+  list.innerHTML=LEADERBOARD_DATA.map((r,i)=>`
+    <div class="lb-row${r.me?' me':''}">
+      <div class="lb-rank${i<3?' top':''}">${i===0?'🥇':i===1?'🥈':i===2?'🥉':i+1}</div>
+      <div class="lb-avatar">${r.name.slice(0,2).toUpperCase()}</div>
+      <div class="lb-name">${r.name}${r.me?'<span class="lb-badge">(you)</span>':''}</div>
+      <div class="lb-score">${r.score.toLocaleString()} <span class="lb-streak">${r.streak}🔥</span></div>
+    </div>`).join('');
+}
+
+function switchLbTab(btn,tab){
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderLeaderboard();
+}
+
+const origShowScreen=showScreen;
+window.showScreen=function(id){
+  origShowScreen(id);
+  if(id==='leaderboard') renderLeaderboard();
+};
+
+renderLeaderboard();
+</script>
